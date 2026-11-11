@@ -1,0 +1,55 @@
+name: Build iOS IPA (iOS 15+)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Run unit tests on iOS Simulator
+        run: |
+          SIM_ID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d,reverse=True) if 'iOS' in k for x in d[k] if x.get('isAvailable') and 'iPhone' in x.get('name','')))")
+          echo "Using simulator: $SIM_ID"
+          xcodebuild test \
+            -project LangkahKu.xcodeproj \
+            -scheme LangkahKu \
+            -destination "id=$SIM_ID" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build unsigned iOS app
+        run: |
+          xcodebuild build \
+            -project LangkahKu.xcodeproj \
+            -scheme LangkahKu \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/DerivedData/Build/Products/Release-iphoneos/LangkahKu.app build/Payload/
+          cd build && zip -r LangkahKu-unsigned.ipa Payload
+
+      - name: Upload LangkahKu IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LangkahKu-unsigned-ipa
+          path: build/LangkahKu-unsigned.ipa
+          if-no-files-found: error
