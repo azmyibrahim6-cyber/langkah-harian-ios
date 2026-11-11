@@ -41,6 +41,10 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
+      - name: Verify compiled Info.plist
+        run: |
+          python3 -c "import plistlib; pl=plistlib.load(open('build/DerivedData/Build/Products/Release-iphoneos/LangkahKu.app/Info.plist','rb')); print('NSMotionUsageDescription:', pl.get('NSMotionUsageDescription')); assert pl.get('NSMotionUsageDescription'), 'Missing NSMotionUsageDescription!'"
+
       - name: Package unsigned IPA
         run: |
           mkdir -p build/Payload

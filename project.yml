@@ -16,15 +16,15 @@ targets:
       - path: LangkahKu
         excludes:
           - Info.plist
-    info:
-      path: LangkahKu/Info.plist
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.langkahku.ios
-        MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "1"
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_FILE: LangkahKu/Info.plist
         GENERATE_INFOPLIST_FILE: NO
+        PRODUCT_BUNDLE_IDENTIFIER: com.langkahku.ios
+        MARKETING_VERSION: "1.0.1"
+        CURRENT_PROJECT_VERSION: "2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
   LangkahKuTests:
     type: bundle.unit-test
     platform: iOS
